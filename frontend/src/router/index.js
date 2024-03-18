@@ -1,24 +1,84 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import HomeView from '../views/HomeView.vue'
 import LoginView from "../views/auth/LoginView.vue";
+import DashboardView from "@/views/dashboard/DashboardView.vue";
+import { useAuthStore } from "@/stores/Auth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
+      path: "/login",
       name: "login",
       component: LoginView,
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // }
+    {
+      path: "/",
+      redirect: "/dashboard",
+      name: "dashboard",
+      component: DashboardView,
+      children: [
+        {
+          path: "/dashboard",
+          name: "dashboard",
+          component: DashboardView,
+        },
+      ],
+    },
+    {
+      path: "/invoices",
+      name: "invoices",
+      component: () => import("../views/sales/pages/Invoices.vue"),
+    },
+
+    {
+      path: "/quotations",
+      name: "quotations",
+      component: () => import("../views/sales/pages/Quotations.vue"),
+    },
+    {
+      path: "/products",
+      name: "products",
+      component: () =>  import("../views/products/ProductsView.vue"),
+    },
+    {
+      path:"/sales-report",
+      name:"sales-report",
+      component: () =>  import("../views/reports/pages/ReportSales.vue"),
+    },
+    {
+      path:"/products-report",
+      name:"products-report",
+      component: () =>  import("../views/reports/pages/ReportProducts.vue"),
+    },
+    {
+      path:"/settings-company",
+      name:"settings-company",
+      component: () => import("../views/settings/pages/SettingsCompany.vue"),
+    },
+    {
+      path:"/settings-invoice",
+      name:"settings-invoice",
+      component: () => import("../views/settings/pages/SettingsInvoices.vue"),
+    },
+    {
+      path:"/settings-system",
+      name:"settings-system",
+      component: () => import("../views/settings/pages/SettingsSystem.vue"),
+    }
+
+
   ],
 });
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = authStore.getLoggedInStatus();
 
+  if (to.name !== "login" && !isAuthenticated) {
+    next({ name: "login" });
+  } else if (to.name === "login" && isAuthenticated) {
+    next({ name: "dashboard" });
+  } else {
+    next();
+  }
+});
 export default router;

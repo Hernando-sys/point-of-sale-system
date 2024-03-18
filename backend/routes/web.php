@@ -14,6 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json(['Laravel' => app()->version()]);
 });
 Route::post('/login', [LoginController::class, 'login']);
