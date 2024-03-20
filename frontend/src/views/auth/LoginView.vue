@@ -1,14 +1,11 @@
 <template>
   <div class="relative flex h-full">
-    <LoginSvg
-      class="absolute w-full h-full"
-      viewBox="0 0 3840 2160"
-    ></LoginSvg>
+    <LoginSvg class="absolute h-full w-full" viewBox="0 0 3840 2160"></LoginSvg>
 
     <div class="z-10 m-auto">
       <form
         @submit.prevent="handleLogin"
-        class="flex flex-col gap-8 rounded-lg bg-white p-8 font-semibold text-gray-700 min-w-[500px]"
+        class="flex min-w-[500px] flex-col gap-8 rounded-lg bg-white p-8 font-semibold text-gray-700"
       >
         <h1 class="text-center text-4xl font-bold">Login</h1>
         <div>
@@ -18,7 +15,7 @@
             v-model="form.email"
             name="email"
             id="email"
-            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-2 focus:border-sky-500 focus:outline-none"
+            class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2.5 text-sm outline outline-1 outline-gray-300 focus:outline-2 focus:outline-cyan-500"
           />
         </div>
         <div>
@@ -28,12 +25,12 @@
             v-model="form.password"
             name="password"
             id="password"
-            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-2 focus:border-sky-500 focus:outline-none"
+            class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2.5 text-sm outline outline-1 outline-gray-300 focus:outline-2 focus:outline-cyan-500"
           />
         </div>
         <div>
           <button
-            class="rounded-lg bg-sky-500 px-5 py-2.5 text-center font-medium text-white hover:bg-sky-600"
+            class="rounded-lg bg-cyan-700 px-5 py-2.5 text-center font-medium text-white hover:bg-cyan-600"
             type="submit"
           >
             Submit

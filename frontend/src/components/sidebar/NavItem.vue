@@ -3,12 +3,14 @@
     v-if="!item.children.length"
     @click="sidebarStore.resetActive(item, props.isChildren)"
     :to="item.to"
-    class="mb-1 flex items-center gap-2 rounded-sm px-4 py-2 hover:bg-slate-200"
+    class="mb-1 flex items-center gap-2 rounded-sm px-4 py-2 text-gray-800  hover:bg-gray-200"
     :class="{
-      'bg-sky-200 font-bold text-gray-800 hover:bg-sky-200':
+      'bg-cyan-200 font-bold  hover:!bg-cyan-200':
         props.isActive && !props.isChildren,
-      'bg-gray-200 font-bold text-gray-800 hover:bg-gray-200':
+      'bg-gray-200 font-bold  ':
         props.isActive && props.isChildren,
+      ' color_gray ':
+        !props.isActive && props.isChildren,
     }"
   >
     <span
@@ -37,7 +39,7 @@
       @click="sidebarStore.resetActive(item)"
       class="custom-transition mb-1 flex w-full items-center rounded-sm px-4 py-2 font-semibold hover:bg-slate-200"
       :class="{
-        'bg-sky-200 font-bold text-gray-800 hover:bg-sky-200': props.isActive,
+        'bg-cyan-200 font-bold text-gray-800 hover:!bg-cyan-200': props.isActive,
       }"
     >
       <span
@@ -47,10 +49,9 @@
         >{{ item.icon }}</span
       >
       <span
-        class="flex-1 text-left"
+        class="flex-1 text-left text-gray-800 custom-transition"
         :class="{
           'opacity-0': !isSidebarOpen,
-          ' text-gray-800': item.isOpen,
         }"
       >
         {{ item.label }}
@@ -112,5 +113,8 @@ const props = defineProps({
 <style>
 .custom-transition {
   transition: ease-out 0.2s;
+}
+.color_gray{
+  color: rgb(119, 119, 119);
 }
 </style>

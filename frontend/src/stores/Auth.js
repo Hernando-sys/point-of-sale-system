@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-
+import axios from "../lib/axios.js";
+import router from "../router/index.js"
 export const useAuthStore = defineStore("auth", {
   state: () => ({ isLoggedIn: false }),
   actions: {
@@ -17,6 +18,16 @@ export const useAuthStore = defineStore("auth", {
       this.isLoggedIn = status;
       window.localStorage.setItem("isLoggedIn", JSON.stringify(status));
       return;
+    },
+    async logoutUser() {
+      console.log("logoutUser");
+      try {
+        await axios.get("/logout");
+      } catch (err) {
+      } finally {
+        this.setLoggedInStatus(false);
+        router.push({ name: "login" }); 
+      }
     },
   },
 });

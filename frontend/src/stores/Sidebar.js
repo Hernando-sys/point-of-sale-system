@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-
+import { computed } from "vue";
 export const useSidebarStore = defineStore("sidebar", {
   state: () => ({
-    isOpen: false,
+    isOpenHover: false,
+    isOpenPin: false,
     navItems: [
       {
         to: "dashboard",
@@ -104,20 +105,26 @@ export const useSidebarStore = defineStore("sidebar", {
         icon: "settings",
       },
     ],
+
   }),
   actions: {
     resetActive(selectedItem, isChild = false) {
-      if(isChild){
-        return
+      if (isChild) {
+        return;
       }
 
       this.navItems.forEach((item) => {
         if (item.label === selectedItem.label) {
-          item.isOpen = !item.isOpen; ;
-        }else{
+          item.isOpen = !item.isOpen;
+        } else {
           item.isOpen = false;
         }
       });
+    },
+  },
+  getters: {
+    isOpen() {
+      return this.isOpenPin || this.isOpenHover;
     },
   },
 });

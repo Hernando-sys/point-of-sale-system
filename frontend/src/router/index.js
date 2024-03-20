@@ -11,18 +11,15 @@ const router = createRouter({
       name: "login",
       component: LoginView,
     },
+
     {
       path: "/",
       redirect: "/dashboard",
+    },
+    {
+      path: "/dashboard",
       name: "dashboard",
       component: DashboardView,
-      children: [
-        {
-          path: "/dashboard",
-          name: "dashboard",
-          component: DashboardView,
-        },
-      ],
     },
     {
       path: "/invoices",
@@ -38,35 +35,42 @@ const router = createRouter({
     {
       path: "/products",
       name: "products",
-      component: () =>  import("../views/products/ProductsView.vue"),
+      component: () => import("../views/products/ProductsView.vue"),
     },
     {
-      path:"/sales-report",
-      name:"sales-report",
-      component: () =>  import("../views/reports/pages/ReportSales.vue"),
+      path: "/products/import", 
+      name: "products-import",
+      component: () => import("../views/products/pages/ProductsImport.vue"),
     },
     {
-      path:"/products-report",
-      name:"products-report",
-      component: () =>  import("../views/reports/pages/ReportProducts.vue"),
+      path: "/sales-report",
+      name: "sales-report",
+      component: () => import("../views/reports/pages/ReportSales.vue"),
     },
     {
-      path:"/settings-company",
-      name:"settings-company",
+      path: "/products-report",
+      name: "products-report",
+      component: () => import("../views/reports/pages/ReportProducts.vue"),
+    },
+    {
+      path: "/settings-company",
+      name: "settings-company",
       component: () => import("../views/settings/pages/SettingsCompany.vue"),
     },
     {
-      path:"/settings-invoice",
-      name:"settings-invoice",
+      path: "/settings-invoice",
+      name: "settings-invoice",
       component: () => import("../views/settings/pages/SettingsInvoices.vue"),
     },
     {
-      path:"/settings-system",
-      name:"settings-system",
+      path: "/settings-system",
+      name: "settings-system",
       component: () => import("../views/settings/pages/SettingsSystem.vue"),
-    }
-
-
+    },
+    {
+      path: "/:catchAll(.*)",
+      redirect: "/dashboard",
+    },
   ],
 });
 router.beforeEach((to, from, next) => {
@@ -78,6 +82,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === "login" && isAuthenticated) {
     next({ name: "dashboard" });
   } else {
+    console.log("going to: ", to.name);
     next();
   }
 });

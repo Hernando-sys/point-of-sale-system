@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::get('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('api.logout');
+
+    Route::get('/products', [App\Http\Controllers\ProductController::class, 'filters'])->name('api.products');
+    Route::get('/brands', [App\Http\Controllers\BrandController::class, 'index'])->name('api.brands');
+    Route::get('/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('api.categories');
+    Route::get('/suppliers', [App\Http\Controllers\SupplierController::class, 'index'])->name('api.suppliers');
 });

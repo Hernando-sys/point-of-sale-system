@@ -1,17 +1,18 @@
 <template>
-  <aside
+  <div
     class="custom-transition fixed flex min-h-full w-16 flex-col gap-4 overflow-hidden border-r-[1px] sm:static"
     :class="{
       ' w-[length:var(--sidebar-width)]': sidebarStore.isOpen,
       ' w-[length:var(--sidebar-width-collapsed)]  ': !sidebarStore.isOpen,
     }"
+    @mouseover="sidebarStore.isOpenHover = true"
+    @mouseleave="sidebarStore.isOpenHover = false"
   >
-    <div class="text-nowrap p-3 pl-4 pb-2 relative border-b-2" >
+    <div class="relative text-nowrap border-b-2 p-3 pb-2 pl-4">
       <PiniaLogo class="inline-block pr-3"> </PiniaLogo>
       <div class="inline-block">
-
         <span
-          class="custom-transition mr-2 relative top-1 text-xl font-semibold text-slate-700"
+          class="custom-transition relative top-1 mr-2 text-xl font-semibold text-slate-700"
           :class="{
             'opacity-0': !sidebarStore.isOpen,
           }"
@@ -26,19 +27,24 @@
         'justify-end': sidebarStore.isOpen,
         ' pr-2': sidebarStore.isOpen,
       }"
-      class="custom-transition relative top-0 flex items-center"
+      class="custom-transition relative top-0"
     >
       <button
-        :class="{
-          '-rotate-180': sidebarStore.isOpen,
-        }"
-        class="mr-[0.3rem] flex items-center"
-        @click="sidebarStore.isOpen = !sidebarStore.isOpen"
+        :class="{}"
+        class="group mr-[0.3rem] flex w-full justify-end"
+        @click="sidebarStore.isOpenPin = !sidebarStore.isOpenPin"
       >
+        <span class="opacity-0 text-cyan-600"> push_pin </span>
         <span
-          class="material-icons custom-transition text-[2rem] text-slate-500 hover:translate-x-[0.2rem] hover:text-sky-500"
+          class="material-icons custom-transition absolute right-4 rotate-[15deg] text-[1.6rem]  group-hover:text-[2rem]"
+          :class="{
+            'text-[2rem] text-cyan-500 ': sidebarStore.isOpenPin,
+            'text-slate-500  ': !sidebarStore.isOpenPin,
+            ' opacity-1': sidebarStore.isOpen,
+            ' opacity-0': !sidebarStore.isOpen,
+          }"
         >
-          keyboard_double_arrow_right
+          push_pin
         </span>
       </button>
     </div>
@@ -53,7 +59,7 @@
       >
       </NavItem>
     </nav>
-  </aside>
+  </div>
 </template>
 
 <script setup>
