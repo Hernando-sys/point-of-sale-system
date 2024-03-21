@@ -31,6 +31,7 @@ const authStore = useAuthStore();
 <style>
 *{
   box-sizing: border-box;
+  min-width: 0 ;
 }
 :root {
   --sidebar-width-collapsed: 4rem;

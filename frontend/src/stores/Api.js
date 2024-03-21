@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "../lib/axios.js";
+import { useMiscellaneousStore } from "./Miscellaneous.js";
 
 export const useApiStore = defineStore("api", {
   state: () => ({
@@ -7,9 +8,11 @@ export const useApiStore = defineStore("api", {
     categoryLoading: false,
     supplierLoading: false,
     productLoading: false,
+    filterLoading: false,
   }),
   actions: {
     async getProducts(page = 1, perPage = 10, search = "", filters = []) {
+      console.log('filters -> ',filters)
       this.productLoading = true;
       try {
         const response = await axios.get("/products", {
@@ -17,9 +20,10 @@ export const useApiStore = defineStore("api", {
             page,
             perPage,
             search,
-            filters: filters.length > 0 ? JSON.stringify(filters) : null,
+            filters: filters.length > 0 ? JSON.stringify(filters) : "[]",
           },
         });
+
         return [response.data, response.data.data];
       } catch (err) {
         throw new Error(err.message);
@@ -54,6 +58,26 @@ export const useApiStore = defineStore("api", {
       try {
         const response = await axios.get("/suppliers");
         return response.data;
+      } catch (err) {
+        throw new Error(err.message);
+      } finally {
+        this.supplierLoading = false;
+      }
+    },
+    async getDataForFilters() {
+      const miscellaneousStore = useMiscellaneousStore();
+
+      this.filterLoading = true;
+      try {
+        const response = await axios.get("/filters");
+        const categories = response.data.categories;
+        const brands = response.data.brands;
+        const suppliers = response.data.suppliers;
+        miscellaneousStore.maxValue = response.data.maxPrice;
+        miscellaneousStore.minValue = response.data.minPrice;
+        miscellaneousStore.mappedPrices = response.data.mappedPrices;
+        miscellaneousStore.intervalWidth = response.data.intervalWidth;
+        return [categories, brands, suppliers];
       } catch (err) {
         throw new Error(err.message);
       } finally {

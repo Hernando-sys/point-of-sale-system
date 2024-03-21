@@ -20,7 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::get('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('api.logout');
 
-    Route::get('/products', [App\Http\Controllers\ProductController::class, 'filters'])->name('api.products');
+    Route::get('/products', [App\Http\Controllers\ProductController::class, 'filterProducts'])->name('api.products');
+    Route::get('/filters', [App\Http\Controllers\ProductController::class, 'getDataForFilters'])->name('api.filters');
     Route::get('/brands', [App\Http\Controllers\BrandController::class, 'index'])->name('api.brands');
     Route::get('/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('api.categories');
     Route::get('/suppliers', [App\Http\Controllers\SupplierController::class, 'index'])->name('api.suppliers');

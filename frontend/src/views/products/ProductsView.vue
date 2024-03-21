@@ -1,5 +1,5 @@
 <template>
-  <div class="relative z-10 flex h-full flex-col overflow-hidden">
+  <div class="relative z-10 flex h-full flex-col">
     <Modal :isOpen="openModal" @modal-closed="openModal = false">
       <template #modal-title> Create New Product </template>
       <template #modal-content>
@@ -63,89 +63,135 @@
       </button>
     </div>
 
+    <!-- FILTERS -->
     <div
       id="product_filters"
-      class="flex w-full justify-evenly rounded-tr-xl bg-white p-4 transition-all duration-300"
+      class="flex w-full flex-col justify-evenly gap-4 rounded-tr-xl bg-white p-4 transition-all duration-300"
       :style="{ 'margin-top': hideButton ? `-${elementHeight}px` : '0' }"
     >
-      <Popover v-slot="{ open }" class="">
-        <PopoverButton
-          :class="open ? 'text-white' : 'text-white/90'"
-          class="group relative inline-flex items-center rounded-md bg-orange-700 px-3 py-2 text-base font-medium hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+      <div class="flex gap-4">
+        <SlideMenu
+          label="Category"
+          class="flex-grow-[2]"
+          :state="categoryNames"
         >
-          <span>Solutions</span>
-        </PopoverButton>
-
-        <transition
-          v-show="open"
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="translate-y-1 opacity-0"
-          enter-to-class="translate-y-0 opacity-100"
-          leave-active-class="transition duration-150 ease-in"
-          leave-from-class="translate-y-0 opacity-100"
-          leave-to-class="translate-y-1 opacity-0"
-        >
-          <PopoverPanel class="absolute z-10" static>
+          <template #menu-content>
             <div
-              class="mt-1.5 overflow-hidden rounded-lg bg-red-400 p-4 shadow-lg"
+              class="flex border-b border-gray-300 px-3 py-2 text-base font-bold"
             >
-              <span class="flex items-center">
-                <span class="text-sm font-medium text-gray-900">
-                  Documentation
-                </span>
-              </span>
-              <span class="block text-sm text-gray-500">
-                Start integrating products and tools
-              </span>
+              Categories
             </div>
-          </PopoverPanel>
-        </transition>
-      </Popover>
-      <Popover v-slot="{ open }" class="">
-        <PopoverButton
-          :class="open ? 'text-white' : 'text-white/90'"
-          class="group relative inline-flex items-center rounded-md bg-orange-700 px-3 py-2 text-base font-medium hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-        >
-          <span>Solutions</span>
-        </PopoverButton>
-
-        <transition
-          v-show="open"
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="translate-y-1 opacity-0"
-          enter-to-class="translate-y-0 opacity-100"
-          leave-active-class="transition duration-150 ease-in"
-          leave-from-class="translate-y-0 opacity-100"
-          leave-to-class="translate-y-1 opacity-0"
-        >
-          <PopoverPanel class="absolute z-10" static>
+            <div class="flex flex-col">
+              <div
+                v-for="category in categories"
+                :key="category.id"
+                class="flex cursor-pointer items-center justify-start p-2 hover:bg-gray-100"
+                @click="toggleCategory(category)"
+              >
+                <input
+                  class="mr-3 h-4 w-4 cursor-pointer accent-cyan-600"
+                  type="checkbox"
+                  v-model="filters.category.values"
+                  :value="category.id"
+                />
+                <div class="font-semibold">{{ category.name }}</div>
+                <div class="mb-[2px] ml-auto text-sm text-gray-500">
+                  ({{ category.products_count }})
+                </div>
+              </div>
+            </div>
+          </template>
+        </SlideMenu>
+        <SlideMenu label="Brand" class="flex-grow-[2]" :state="brandNames">
+          <template #menu-content>
             <div
-              class="mt-1.5 overflow-hidden rounded-lg bg-red-400 p-4 shadow-lg"
+              class="flex border-b border-gray-300 px-3 py-2 text-base font-bold"
             >
-              <span class="flex items-center">
-                <span class="text-sm font-medium text-gray-900">
-                  Documentation
-                </span>
-              </span>
-              <span class="block text-sm text-gray-500">
-                Start integrating products and tools
-              </span>
+              Brands
             </div>
-          </PopoverPanel>
-        </transition>
-      </Popover>
+            <div class="flex flex-col">
+              <div
+                v-for="brand in brands"
+                :key="brand.id"
+                class="flex cursor-pointer items-center justify-start p-2 hover:bg-gray-100"
+                @click="toggleBrand(brand)"
+              >
+                <input
+                  class="mr-3 h-4 w-4 cursor-pointer accent-cyan-600"
+                  type="checkbox"
+                  v-model="filters.brand.values"
+                  :value="brand.id"
+                />
+                <div class="font-semibold">{{ brand.name }}</div>
+                <div class="mb-[2px] ml-auto text-sm text-gray-500">
+                  ({{ brand.products_count }})
+                </div>
+              </div>
+            </div>
+          </template>
+        </SlideMenu>
+        <button
+          class="flex-grow rounded-md bg-gray-800 p-3 font-semibold text-white"
+          @click="applyFilters"
+        >
+          Apply Filters
+        </button>
+      </div>
+      <div class="flex gap-4">
+        <SlideMenu label="Supplier" class="flex-grow" :state="supplierNames">
+          <template #menu-content>
+            <div
+              class="flex border-b border-gray-300 px-3 py-2 text-base font-bold"
+            >
+              Suppliers
+            </div>
+            <div class="flex flex-col">
+              <div
+                v-for="supplier in suppliers"
+                :key="supplier.id"
+                class="flex cursor-pointer items-center justify-start p-2 hover:bg-gray-100"
+                @click="toggleSupplier(supplier)"
+              >
+                <input
+                  class="mr-3 h-4 w-4 cursor-pointer accent-cyan-600"
+                  type="checkbox"
+                  v-model="filters.supplier.values"
+                  :value="supplier.id"
+                />
+                <div class="font-semibold">{{ supplier.name }}</div>
+                <div class="mb-[2px] ml-auto text-sm text-gray-500">
+                  ({{ supplier.products_count }})
+                </div>
+              </div>
+            </div>
+          </template>
+        </SlideMenu>
+        <SlideMenu class="flex-grow" label="Price" :state="priceRange">
+          <template #menu-content>
+            <!-- <div class="">
+                <Chart :mappedPrices="mappedPrices"></Chart>
+              </div> -->
+            <RangeSlider
+              v-model:min-price="filters.price.values.min"
+              v-model:max-price="filters.price.values.max"
+            ></RangeSlider>
+          </template>
+        </SlideMenu>
+      </div>
     </div>
+
+    <!-- TABLE -->
     <div
       class="rounded-b-xl border-t border-gray-300 bg-white p-4 shadow-md"
       :class="{ 'rounded-tr-xl': hideButton }"
     >
-      <!-- Table captions and filter chips -->
+      <!-- Captions and filter chips -->
       <div class="flex flex-col justify-evenly">
         <div class="my-1 flex flex-wrap">
           <span
             class="mr-2 mt-2 flex items-center py-1 text-xs font-semibold text-blue-800"
           >
-            Filtros activos:
+            Active filters:
           </span>
           <div
             v-if="selectedFilters.length > 0"
@@ -154,7 +200,10 @@
             class="mr-2 mt-2 flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800"
           >
             <span>{{ filter.name }}</span>
-            <button class="ml-2 focus:outline-none">
+            <button
+              @click="removeFilter(filter)"
+              class="ml-2 focus:outline-none"
+            >
               <svg
                 class="h-3 w-3 cursor-pointer fill-current"
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,23 +216,23 @@
             </button>
           </div>
           <div v-else class="mr-2 mt-2 flex items-center py-1 text-xs">
-            No hay filtros activos
+            <span>No filters applied</span>
           </div>
         </div>
         <div class="my-2 flex items-end justify-between">
           <div class="flex items-center">
-            <span class="mr-2 text-sm">Mostrar:</span>
+            <span class="mr-2 text-sm">Show:</span>
             <select
               v-model="perPage"
               id="entries"
-              class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2.5 py-2 text-sm outline outline-1 outline-gray-300 focus:outline-2 focus:outline-cyan-500"
+              class="block w-full rounded-lg border-gray-300 bg-gray-50 p-2 py-1 text-sm outline outline-1 outline-gray-300 focus:outline-2 focus:outline-cyan-500"
             >
               <option value="5">5</option>
               <option value="10" selected>10</option>
               <option value="15">15</option>
               <option value="20">20</option>
             </select>
-            <span class="ml-2 text-sm">filas</span>
+            <span class="ml-2 text-sm">rows</span>
           </div>
           <div class="mr-1">
             <div class="flex w-full">
@@ -191,12 +240,13 @@
                 v-model="search"
                 name="table_search"
                 type="search"
-                class="block w-full rounded-l-lg  border   border-gray-300 bg-gray-50 p-2.5 text-sm  outline-gray-300  focus:border-2 focus:border-cyan-500 focus:outline-none"
+                class="block w-full rounded-l-lg border border-gray-300 bg-gray-50 p-2.5 text-sm outline-gray-300 focus:border-2 focus:border-cyan-500 focus:outline-none"
                 placeholder="Buscar producto"
+                autocomplete="off"
               />
               <!--Search button-->
               <button
-                class="flex items-center bg-gray-200  border-l-0 border border-gray-300 rounded-l-none rounded-r-md p-2.5 text-sm text-white hover:bg-gray-300"
+                class="flex items-center rounded-l-none rounded-r-md border border-l-0 border-gray-300 bg-gray-200 p-2.5 text-sm text-white hover:bg-gray-300"
                 type="button"
               >
                 <svg
@@ -232,8 +282,19 @@
             </tr>
           </thead>
           <tbody class="h-full w-full">
+            <tr v-if="apiStore.productLoading">
+              <td class="px-2 py-1 text-center text-2xl" colspan="5">
+                Searching...
+                <span
+                  class="spinner-border text-danger mr-2"
+                  role="status"
+                  style="font-size: 0.8rem"
+                >
+                </span>
+              </td>
+            </tr>
             <tr
-              v-if="products.length > 0"
+              v-else-if="products.length > 0"
               v-for="product in products"
               :key="product.id"
               class="border-b bg-white hover:bg-gray-100"
@@ -276,34 +337,81 @@
                 </div>
               </td>
             </tr>
-            <!-- <tr v-else-if="!firstLoad">
-              <td
-                class="px-2 py-2 text-center text-lg font-semibold"
-                colspan="8"
-              >
-                <span> <i class="fas fa-exclamation-triangle"></i></span> No se
-                encontraron productos
-              </td>
-            </tr> -->
             <tr v-else>
-              <td
-                class="px-2 py-2 text-center text-lg font-semibold"
-                colspan="8"
-              ></td>
+              <td class="px-2 py-1 text-center text-2xl" colspan=" 5">
+                <i class="fas fa-exclamation-triangle mr-2 text-2xl"></i>
+                No products found
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-5 flex items-center justify-between">
+        <span class="text-sm" v-if="meta?.from && meta?.to"
+          >Showing {{ meta.from }} to {{ meta.to }} of
+          {{ meta.total }} products</span
+        >
+        <nav>
+          <ul class="mr-10 inline-flex -space-x-px text-sm text-gray-500">
+            <li
+              v-if="meta?.links?.length > 0"
+              v-for="(link, index) in meta.links"
+              :key="link.index"
+              :class="
+                link.url == null
+                  ? 'page-item disabled'
+                  : link.active
+                    ? 'page-item active'
+                    : 'page-item'
+              "
+            >
+              <button
+                class="ms-0 flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight"
+                :class="[
+                  {
+                    disabled: link.url == null,
+                    'bg-cyan-100 text-cyan-600': link.active,
+                    'bg-white hover:bg-gray-100 hover:text-gray-700':
+                      !link.active && link.url != null,
+                    'rounded-l-md': index == 0,
+                    'pointer-events-none rounded-l-md':
+                      (index == 0 || index == meta.links.length - 1) &&
+                      link.url == null,
+                    'rounded-r-md': index == meta.links.length - 1,
+                  },
+                ]"
+                @click.prevent="
+                  link.url == null || link.active
+                    ? null
+                    : fetchProductData(link.url)
+                "
+              >
+                {{
+                  index == 0
+                    ? "Prev"
+                    : index == meta.links.length - 1
+                      ? "Next"
+                      : link.label
+                }}
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import NewProduct from "./components/NewProduct.vue";
 import Modal from "../../components/modal/Modal.vue";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue";
+import SlideMenu from "../../components/slidemenu/SlideMenu.vue";
+import RangeSlider from "./components/RangeSlider.vue";
 import { useApiStore } from "@/stores/Api";
+import Chart from "./components/Chart.vue";
 const apiStore = useApiStore();
 
 const openModal = ref(false);
@@ -312,39 +420,234 @@ const elementHeight = ref(0);
 
 const perPage = ref(10);
 const meta = ref(null);
-const filters = ref([
-  { name: "category", selected: false, values: [] },
-  { name: "brand", selected: false, values: [] },
-  { name: "supplier", selected: false, values: [] },
-  { name: "price", selected: false, values: [0, 0] }, // [min, max]
-]);
-const selectedFilters = ref([]);
+const filters = ref({
+  category: {
+    name: "Category", // used in chips
+    id: 1,
+    selected: false,
+    values: [],
+  },
+  brand: {
+    name: "Brand", // used in chips
+    id: 2,
+    selected: false,
+    values: [],
+  },
+  supplier: {
+    name: "Supplier", // used in chips
+    id: 3,
+    selected: false,
+    values: [],
+  },
+  price: {
+    name: "Price",
+    id: 4,
+    selected: false,
+    values: {
+      min: 0,
+      max: 0,
+    },
+  },
+});
+const selectedFilters = computed(() => {
+  return Object.values(filters.value).filter((filter) => {
+    return filter.selected;
+  });
+});
+const removeFilter = (filter) => {
+  if (filter.name === "Brand") {
+    filters.value.brand.values.splice(0, filters.value.brand.values.length);
+  } else if (filter.name === "Category") {
+    filters.value.category.values.splice(
+      0,
+      filters.value.category.values.length,
+    );
+  } else if (filter.name === "Price") {
+    filters.value.price.values.min = 0;
+    filters.value.price.values.max = 0;
+  } else if (filter.name === "Supplier") {
+    filters.value.supplier.values.splice(
+      0,
+      filters.value.supplier.values.length,
+    );
+  }
+  applyFilters();
+};
+const applyFilters = async () => {
+  const filterKeys = Object.keys(filters.value);
+
+  filterKeys.forEach((key) => {
+    const filter = filters.value[key];
+
+    if (key === "brand" || key === "category" || key === "supplier") {
+      filter.selected = filter.values.length > 0;
+    } else if (key === "price") {
+      filter.selected = filter.values.min !== 0 || filter.values.max !== 0;
+    }
+  });
+  fetchProductData();
+};
+const categoryNames = computed(() => {
+  let names = "";
+  let count = 0;
+  filters.value.category.values.forEach((id) => {
+    const category = categories.value.find((category) => category.id === id);
+    if (category) {
+      if (count === 0) {
+        names += category.name;
+      } else if (count < 3) {
+        names += ", " + category.name;
+      }
+      count++;
+    }
+  });
+  if (count > 3) {
+    return `( ${names}, +${count - 3} )`;
+  }
+  if (names === "") return "";
+  return `( ${names} )`;
+});
+const brandNames = computed(() => {
+  let names = "";
+  let count = 0;
+  filters.value.brand.values.forEach((id) => {
+    const brand = brands.value.find((brand) => brand.id === id);
+    if (brand) {
+      if (count === 0) {
+        names += brand.name;
+      } else if (count < 3) {
+        names += ", " + brand.name;
+      }
+      count++;
+    }
+  });
+  if (count > 3) {
+    return `( ${names}, +${count - 3} )`;
+  }
+  if (names === "") return "";
+  return `( ${names} )`;
+});
+const supplierNames = computed(() => {
+  let names = "";
+  let count = 0;
+  filters.value.supplier.values.forEach((id) => {
+    const supplier = suppliers.value.find((supplier) => supplier.id === id);
+    if (supplier) {
+      if (count === 0) {
+        names += supplier.name;
+      } else if (count < 3) {
+        names += ", " + supplier.name;
+      }
+      count++;
+    }
+  });
+  if (count > 3) {
+    return `( ${names}, +${count - 3} )`;
+  }
+  if (names === "") return "";
+  return `( ${names} )`;
+});
+const priceRange = computed(() => {
+  if (
+    filters.value.price.values.min !== 0 ||
+    filters.value.price.values.max !== 0
+  ) {
+    return `( S/. ${filters.value.price.values.min} - ${filters.value.price.values.max} )`;
+  }
+  return "";
+});
 const search = ref("");
+const searchTimeout = ref(null);
+const productsNotFound = ref(false);
 
 const categories = ref([]);
 const brands = ref([]);
 const suppliers = ref([]);
 const products = ref([]);
 
-const fetchData = async () => {
+const mappedPrices = ref([]);
+
+const fetchEntitiesData = async () => {
   try {
-    const productData = await apiStore.getProducts();
-    meta.value = productData[0];
-    products.value = productData[1];
-    categories.value = await apiStore.getCategories();
-    brands.value = await apiStore.getBrands();
-    suppliers.value = await apiStore.getSuppliers();
+    let response = await apiStore.getDataForFilters();
+    categories.value = response[0];
+    brands.value = response[1];
+    suppliers.value = response[2];
+    mappedPrices.value = response[3];
   } catch (error) {
     //alert(error.message);
   }
 };
 
+const fetchProductData = async (link = null) => {
+  let page = 1;
+  try {
+    if (link) {
+      let currentPage = new URL(link).searchParams.get("page");
+      page = currentPage;
+    }
+    const productData = await apiStore.getProducts(
+      page,
+      perPage.value,
+      search.value,
+      selectedFilters.value,
+    );
+    meta.value = productData[0];
+    products.value = productData[1];
+
+    productsNotFound.value = products.value.length > 0 ? false : true;
+  } catch (error) {
+    // alert(error.message);
+  }
+};
+const toggleCategory = (category) => {
+  const index = filters.value.category.values.indexOf(category.id);
+  if (index === -1) {
+    filters.value.category.values.push(category.id);
+  } else {
+    filters.value.category.values.splice(index, 1);
+  }
+};
+const toggleBrand = (brand) => {
+  const index = filters.value.brand.values.indexOf(brand.id);
+  if (index === -1) {
+    filters.value.brand.values.push(brand.id);
+  } else {
+    filters.value.brand.values.splice(index, 1);
+  }
+};
+const toggleSupplier = (supplier) => {
+  const index = filters.value.supplier.values.indexOf(supplier.id);
+  if (index === -1) {
+    filters.value.supplier.values.push(supplier.id);
+  } else {
+    filters.value.supplier.values.splice(index, 1);
+  }
+};
+fetchProductData();
+fetchEntitiesData();
+
 onMounted(() => {
   elementHeight.value = document.getElementById("product_filters").offsetHeight;
 });
-onMounted(async () => {
-  await fetchData();
-});
+
+watch(
+  [search, perPage],
+  async ([newSearch, newPerPage], [oldSearch, oldPerPage]) => {
+    if (newPerPage !== oldPerPage) {
+      await fetchProductData();
+    } else if (newSearch !== oldSearch) {
+      clearTimeout(searchTimeout.value);
+      if (newSearch === "") {
+        await fetchProductData();
+      } else {
+        searchTimeout.value = setTimeout(async () => {
+          await fetchProductData();
+        }, 400);
+      }
+    }
+  },
+);
 </script>
 
 <style></style>

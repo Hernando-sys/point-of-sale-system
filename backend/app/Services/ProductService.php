@@ -13,65 +13,56 @@ class ProductService
 
     public static function applyFilters($filters, $perPage, $search)
     {
-        info('In ApplyFilters');
-        info($filters);
-        info($perPage);
-        info($search);
-        // $brandIds = [];
-        // $categoryIds = [];
-        // $priceRange = [];
-        // $warrantys = [];
+        $brandIds = [];
+        $categoryIds = [];
+        $supplierIds = [];
+        $priceRange = [];
 
-        // if ($filters && is_array($filters)) {
-        //     foreach ($filters as $filter) {
-        //         if (isset($filter['name2'])) {
-        //             if ($filter['name2'] === 'Garantia') {
-        //                 foreach ($filter['values'] as $value) {
-        //                     if ($value['selected']) {
-        //                         $warrantys[] = [
-        //                             'name' => $value['name'],
-        //                             'min' => $value['min'],
-        //                             'max' => $value['max'],
-        //                         ];
-        //                     }
-        //                 }
-        //             } else if ($filter['name2'] === 'Linea') {
-        //                 $categoryIds = $filter['values'];
-        //             }
-        //         } else if ($filter['name'] === 'Marca') {
-        //             $brandIds = $filter['values'];
-        //         } else if ($filter['name'] === 'Precio') {
-        //             $priceRange[] = $filter['values']['min'];
-        //             $priceRange[] = $filter['values']['max'];
-        //         }
-        //     }
-        // }
+        if ($filters && is_array($filters)) {
+            foreach ($filters as $filter) {
+                if ($filter['name'] === 'Brand') {
+                    $brandIds = $filter['values'];
+                } else if ($filter['name'] === 'Category') {
+                    $categoryIds = $filter['values'];
+                } else if ($filter['name'] === 'Supplier') {
+                    $supplierIds = $filter['values'];
+                } else if ($filter['name'] === 'Price') {
+                    $priceRange[] = $filter['values']['min'];
+                    $priceRange[] = $filter['values']['max'];
+                }
+            }
+        }
 
 
         // // $query = Product::with('image');
 
-        // $query = Product::all();
-        // if (count($search) > 0 && $search[0] !== '') {
-        //     $query->where(function ($q) use ($search) {
-        //         foreach ($search as $param) {
-        //             $q->where('name', 'like', '%' . $param . '%')
-        //                 ->orWhere('code', 'like', '%' . $param . '%');
-        //             // ->orWhere('slug', 'like', '%' . $param . '%');
-        //         }
-        //     });
-        // }
+        info($brandIds);
+        info('HELOO');
+        $query = Product::query();
+        if ($search[0] !== '') {
+            $query->where(function ($q) use ($search) {
+                foreach ($search as $param) {
+                    $q->where('name', 'like', '%' . $param . '%')
+                        ->orWhere('code', 'like', '%' . $param . '%');
+                    // ->orWhere('slug', 'like', '%' . $param . '%');
+                }
+            });
+        }
 
-        // if (count($brandIds) > 0) {
-        //     $query->whereIn('brand_id', $brandIds);
-        // }
+        if (count($brandIds) > 0) {
+            $query->whereIn('brand_id', $brandIds);
+        }
 
-        // if (count($categoryIds) > 0) {
-        //     $query->whereIn('line_id', $categoryIds);
-        // }
-        // if (count($priceRange) > 0) {
-        //     $query->whereBetween('referential_purchase_price', $priceRange);
-        // }
-        // return  $query->paginate(intVal($perPage));
+        if (count($categoryIds) > 0) {
+            $query->whereIn('category_id', $categoryIds);
+        }
+        if (count($supplierIds) > 0) {
+            $query->whereIn('supplier_id', $supplierIds);
+        }
+        if (count($priceRange) > 0) {
+            $query->whereBetween('price', $priceRange);
+        }
+        return  $query->paginate(intVal($perPage));
     }
 
     public static function updateImage(Product $product, $request)
